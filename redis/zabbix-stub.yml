@@ -1,0 +1,19 @@
+properties:
+  zabbix:
+    server_ip: 172.29.0.200
+    host_metadata: services-dc1
+    user_parameter:
+      - fs.ofiles,awk '{print $1}' /proc/sys/fs/file-nr
+      - net.tcp_sock_established_all,ss -t -n state established not src 127.0.0.1 | wc -l
+      - redis.discovery,/var/vcap/packages/zabbix_agentd/scripts/get_redis_stats.py discovery
+      - redis_stats[*],/var/vcap/packages/zabbix_agentd/scripts/get_redis_stats.py metric $1 $2
+
+jobs:
+- name: cf-redis-broker
+  templates:
+  - name: zabbix_agentd
+    release: zabbix_agent
+
+releases:
+- name: zabbix_agent
+  version: latest
